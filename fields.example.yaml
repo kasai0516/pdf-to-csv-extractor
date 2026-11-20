@@ -1,0 +1,25 @@
+# Field rules for the sample invoices. Each pattern captures the value in group 1.
+# Use [ \t]* (not \s*) after a label so an empty field can't "borrow" the next line,
+# and capture to the end of the line so a value like "1 280.00" is checked whole, not truncated.
+fields:
+  - name: invoice_no
+    pattern: 'Invoice No:[ \t]*([A-Z]-\d+)'
+  - name: invoice_date
+    pattern: 'Invoice Date:[ \t]*(\S.*?)[ \t]*$'
+    type: date
+  - name: customer
+    pattern: 'Bill To:[ \t]*(\S.*?)[ \t]*$'
+  - name: subtotal
+    pattern: 'Subtotal:[ \t]*(\S.*?)[ \t]*$'
+    type: money
+  - name: tax
+    pattern: 'Tax \(\d+%\):[ \t]*(\S.*?)[ \t]*$'
+    type: money
+  - name: total
+    pattern: 'Total Due:[ \t]*(?:USD[ \t]*)?(\S.*?)[ \t]*$'
+    type: money
+
+# Cross-field checks: subtotal + tax must equal total.
+checks:
+  - sum: [subtotal, tax]
+    equals: total
